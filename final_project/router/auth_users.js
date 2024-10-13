@@ -67,20 +67,39 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
   const username = req.body.username;
   const review = req.body.review;
 
-  isValid(username)
-
-  
-
+  const authorizedUser = req.session.authorization.username;
+    
   let book = books[isbn];
-
+  
   book.review = review;
+  
+  if(authorizedUser === username){
+    
+    books[isbn] = book;
 
-  books[isbn] = book;
-
-  console.log(books[isbn]);
-
-  return res.status(300).json({message: "Yet to be implemented"});
+    return res.status(200).json({message: "Review has been updated."});
+  
+} else {
+    books.push(book);
+  }
 });
+
+// Delete a book review
+regd_users.delete("/auth/review/:isbn", (req, res) => {
+    //Write your code here
+    const isbn = req.params.isbn;
+    const username = req.body.username;
+  
+    const authorizedUser = req.session.authorization.username;
+    
+    if(authorizedUser === username){
+      delete books[isbn];
+      return res.status(200).json({message: "Review has been deleted."});
+    
+  } else {
+        return res.status(300).json({message: "Please log in."});
+    }
+  });
 
 module.exports.authenticated = regd_users;
 module.exports.isValid = isValid;
